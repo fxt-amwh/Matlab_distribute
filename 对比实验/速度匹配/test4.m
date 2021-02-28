@@ -98,7 +98,7 @@ SERR.eb=[1;1;1]*dph;
 SERR.web=[1;1;1]*dpsh;
 SERR.db=[200;200;200]*ug;
 SERR.wdb=[200;200;200]*ugpsHz;
-atterr0=[0;0;0]*arcdeg;
+atterr0=[0;0;10]*arcdeg;
 SINS_Ret_VLF=zeros(floor(len/2),22);kk=1;t=0;
 qnb_vm=a2qua(att0);
 vn_vm=vn0;
@@ -171,7 +171,7 @@ msplot(311, SINS_Ret_VLF(:,22), SINS_Ret_VLF(:,4:6)+SINS_Ret_VLF(:,19:21), '子惯
 if Flag.EnBack
     msplot(312, SINS_Ret_VLF(:,22), SINS_Ret_VLF(:,13:15), '子惯速度纯惯结果 Vel / m.s^{-1}'); legend('\itv\rm_E', '\itv\rm_N', '\itv\rm_U')
 else
-    msplot(312, SINS_Ret_VLF(:,22), SINS_Ret_VLF(:,13:15), '子惯速度滤波结果 Vel / m.s^{-1}'); legend('\itv\rm_E', '\itv\rm_N', '\itv\rm_U')
+    msplot(312, SINS_Ret_VLF(:,22), SINS_Ret_VLF(:,13:15)-Filter.XT(:,1:3), '子惯速度滤波结果 Vel / m.s^{-1}'); legend('\itv\rm_E', '\itv\rm_N', '\itv\rm_U')
 end
 msplot(313, SINS_Ret_VLF(:,22), SINS_Ret_VLF(:,4:6)+SINS_Ret_VLF(:,19:21)-SINS_Ret_VLF(:,13:15)+Filter.XT(:,1:3), '误差 Vel / m.s^{-1}'); legend('\itv\rm_E', '\itv\rm_N', '\itv\rm_U')
 % 对比滤波估计姿态误差
