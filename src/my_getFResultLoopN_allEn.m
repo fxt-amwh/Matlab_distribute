@@ -132,20 +132,106 @@ for i=1:looplen
         end
     end
 
+    
+
 % 原来环节不改变
     for m=1:M
         for n=1:N
             [qms{m,n},vn{m,n},Uloop{m,n},Rloop{m,n}] = my_relinsupdate5...
-                (qms{m,n},Uloop{m,n},Rloop{m,n},wm_m,fm_m,ws_m{m,n},fs_m{m,n},ts);% 子惯纯相对导航
+                (qms{m,n},Uloop{m,n},Rloop{m,n},wm_m,fm_m,ws_m_aft{m,n},fs_m{m,n},ts);% 子惯纯相对导航
             RFilter{m,n}=my_Ofilter(RFilter{m,n},Rloop{m,n},2,nts);%低通滤波
         end
     end
     
     if flag.EnFusion  
+%         for m=1:M
+%             for n=1:N
+%                 attnow{m,n}=q2att(qms{m,n});
+%                 uf=(attnow{m,n}-attint{m,n});%误差角
+% 
+%                 dR{m,n}=my_getdR(RFilter{m,n},SINS{m,n}.R0,uf);%求出量测
+% 
+%                 wim=sum(wm_m)/2;%可能有问题
+%                 fs=sum(fm_m)/2;
+%                 kfft{m,n}=my_kfft15(wim',q2mat(qms{m,n})',fs',nts);
+%                 kf{m,n}.Phikk_1=kfft{m,n}.phi;
+%                 kf{m,n}.Gammak=kfft{m,n}.Gammak;
+% 
+%                 kf{m,n} = kfupdate(kf{m,n},dR{m,n},'B');%卡尔曼滤波
+% 
+%                 Filter{m,n}.X(:,i)=kf{m,n}.Xk;
+%                 
+%                 attint{m,n}=q2att(qdelphi(a2qua(attint{m,n}),-kf{m,n}.Xk(1:3)));% 2021 02 14新增 更新初始姿态误差阵
+%                 
+%                 qms{m,n} = qdelphi(qms{m,n},-kf{m,n}.Xk(1:3));
+%                 kf{m,n}.Xk(1:3) = 0;  % ·反馈
+%                 Uloop{m,n}= Uloop{m,n}- kf{m,n}.Xk(4:6);  kf{m,n}.Xk(4:6) = 0;
+%                 Rloop{m,n}= Rloop{m,n}- kf{m,n}.Xk(7:9);  kf{m,n}.Xk(7:9) = 0;
+% 
+%                 INSSFR{m,n}.qmsall(i,:)=qms{m,n}';
+%                 INSSFR{m,n}.Rall(i,:)=Rloop{m,n}';
+%                 INSSFR{m,n}.vnall(i,:)=vn{m,n}';
+% 
+%                 [rz,rx,ry]=dcm2angle(q2mat(INSSFR{m,n}.qmsall(i,:)),'zxy');%转换到传统的坐标
+%                 INSSFR{m,n}.attall(:,i)=[rx,ry,-rz];
+%             end
+%         end
+%         
+%         Rloop_k=Rloop;
+%         Rloopk=Rloop;
+%         for m=1:M
+%             for n=1:N
+%                 if 1==m
+%                     Rloop_k{m,n}=my_Rtouf(Rloop{m,n},SINS{m,n}.R0)/norm(SINS{m,n}.R0);
+%                 else
+%                     Rloop_k{m,n}=my_Rftouf(Rloop{m,n}-SINS{m,n}.R0,SINS{1,n}.R0)/norm(SINS{1,n}.R0);
+%                 end
+% %                 Rloop_k{m,n}=my_Rtok(Rloop{m,n},SINS{m,n}.R0);
+%                 Rloopk{m,n}=[1;0;0]+my_getdRf([1;0;0],2*Rloop_k{m,n},2);%单位化
+% %                 Rloopk{m,n}=Rloopk{m,n}/norm(Rloopk{m,n});
+%             end
+%         end
+% 
+%         NINSS.Rloop_k(:,i)=[Rloop_k{1,1};Rloop_k{1,2};Rloop_k{1,3};Rloop_k{1,4}];
+%         NINSS.Rloopk(:,i)=[Rloopk{1,1};Rloopk{1,2};Rloopk{1,3};Rloopk{1,4}];
+% 
+%         Rloop_all=my_CellAvr(Rloopk);
+% 
+%         if Rloop_all(3)>0
+%             NINSS.uf(:,i)=my_Rtouf(Rloop_all,[1;0;0]);
+%         else
+%             NINSS.uf(:,i)=my_Rtouf(Rloop_all,[1;0;0]);
+%         end
+%         
+%         for m=1:M % 最小二乘反馈 没有更新方差阵
+%             for n=1:N
+% %                 kf{m,n}.Xk(1:3) = q2rv(qdelphi(qms{m,n},qms_all));
+% %                 qms{m,n}= qms_all;  
+% %                 kf{m,n}.Xk(4:6) = Uloop{m,n}-Uloop_all;
+% %                 Uloop{m,n}= Uloop_all;
+% 
+%                 if 1==m
+%                     Rloop_allmn=SINS{m,n}.R0+my_getdRf(SINS{m,n}.R0,2*NINSS.uf(:,i)*norm(SINS{m,n}.R0),2);
+%                 else
+%                     Rloop_allmn=SINS{m,n}.R0+my_getdRf(SINS{1,n}.R0,2*NINSS.uf(:,i)*norm(SINS{1,n}.R0),2);
+%                 end
+%                 kf{m,n}.Xk(7:9) = Rloop{m,n}-Rloop_allmn;
+%                 Rloop{m,n}= Rloop_allmn;
+%                 
+%             end
+%         end
+%         
+%         attMat=a2mat(2*NINSS.uf(:,i)*norm(SINS{1,1}.R0));
+%         NINSS.Rall(i,:)=(SINS{1,1}.R0+my_getdRf(SINS{1,1}.R0,2*NINSS.uf(:,i)*norm(SINS{1,1}.R0),2))';%注意my_getdRf的挠曲角输入为姿态量测，即2倍挠曲角
+% %         NINSS.Rall(i,:)=Rloop_all';
+%         [rz,rx,ry]=dcm2angle(attMat,'zxy');%转换到传统的坐标
+%         NINSS.attnewall(:,i)=[rx,ry,-rz];
+%         [rz,rx,ry]=dcm2angle(Cmserr_1*attMat,'zxy');%转换到传统的坐标
+%         NINSS.attall(:,i)=[rx,ry,-rz];
         for m=1:M
             for n=1:N
                 attnow{m,n}=q2att(qms{m,n});
-                uf=(attnow{m,n}-attint{m,n});%误差角
+                uf=attnow{m,n}-attint{m,n};%误差角
 
                 dR{m,n}=my_getdR(RFilter{m,n},SINS{m,n}.R0,uf);%求出量测
 
@@ -159,7 +245,7 @@ for i=1:looplen
 
                 Filter{m,n}.X(:,i)=kf{m,n}.Xk;
                 
-                attint{m,n}=q2att(qdelphi(a2qua(attint{m,n}),-kf{m,n}.Xk(1:3)));% 2021 02 14新增 更新初始姿态误差阵
+                attint{m,n}=q2att(qdelphi(a2qua(attint{m,n}),-kf{m,n}.Xk(1:3)));% 2021 03 15新增 更新初始姿态误差阵
                 
                 qms{m,n} = qdelphi(qms{m,n},-kf{m,n}.Xk(1:3));
                 kf{m,n}.Xk(1:3) = 0;  % ·反馈
@@ -174,31 +260,15 @@ for i=1:looplen
                 INSSFR{m,n}.attall(:,i)=[rx,ry,-rz];
             end
         end
-        
-        Rloop_k=Rloop;
-        Rloopk=Rloop;
-        for m=1:M
-            for n=1:N
-                if 1==m
-                    Rloop_k{m,n}=my_Rtouf(Rloop{m,n},SINS{m,n}.R0)/norm(SINS{m,n}.R0);
-                else
-                    Rloop_k{m,n}=my_Rftouf(Rloop{m,n}-SINS{m,n}.R0,SINS{1,n}.R0)/norm(SINS{1,n}.R0);
-                end
-%                 Rloop_k{m,n}=my_Rtok(Rloop{m,n},SINS{m,n}.R0);
-                Rloopk{m,n}=[1;0;0]+my_getdRf([1;0;0],2*Rloop_k{m,n},2);%单位化
-%                 Rloopk{m,n}=Rloopk{m,n}/norm(Rloopk{m,n});
-            end
-        end
-
-        NINSS.Rloop_k(:,i)=[Rloop_k{1,1};Rloop_k{1,2};Rloop_k{1,3};Rloop_k{1,4}];
-        NINSS.Rloopk(:,i)=[Rloopk{1,1};Rloopk{1,2};Rloopk{1,3};Rloopk{1,4}];
-
-        Rloop_all=my_CellAvr(Rloopk);
-
-        if Rloop_all(3)>0
-            NINSS.uf(:,i)=my_Rtouf(Rloop_all,[1;0;0]);
+        qms_all=my_CellAvr(qms);
+        Uloop_all=my_CellAvr(Uloop);
+        vn_all=my_CellAvr(vn);
+        Rloop_all=my_CellAvr(Rloop);
+        Rfall=Rloop_all-SINS{m,n}.R0;
+        if Rfall(3)>0
+            NINSS.uf(:,i)=[0;asin(sqrt(abs(Rfall'*Rfall)/abs(SINS{m,n}.R0'*SINS{m,n}.R0)));0];
         else
-            NINSS.uf(:,i)=my_Rtouf(Rloop_all,[1;0;0]);
+            NINSS.uf(:,i)=[0;-asin(sqrt(abs(Rfall'*Rfall)/abs(SINS{m,n}.R0'*SINS{m,n}.R0)));0];
         end
         
         for m=1:M % 最小二乘反馈 没有更新方差阵
@@ -207,24 +277,20 @@ for i=1:looplen
 %                 qms{m,n}= qms_all;  
 %                 kf{m,n}.Xk(4:6) = Uloop{m,n}-Uloop_all;
 %                 Uloop{m,n}= Uloop_all;
-
-                if 1==m
-                    Rloop_allmn=SINS{m,n}.R0+my_getdRf(SINS{m,n}.R0,2*NINSS.uf(:,i)*norm(SINS{m,n}.R0),2);
-                else
-                    Rloop_allmn=SINS{m,n}.R0+my_getdRf(SINS{1,n}.R0,2*NINSS.uf(:,i)*norm(SINS{1,n}.R0),2);
-                end
-                kf{m,n}.Xk(7:9) = Rloop{m,n}-Rloop_allmn;
-                Rloop{m,n}= Rloop_allmn;
-                
+                kf{m,n}.Xk(7:9) = Rloop{m,n}-Rloop_all;
+                Rloop{m,n}= Rloop_all;
             end
         end
         
-        attMat=a2mat(2*NINSS.uf(:,i)*norm(SINS{1,1}.R0));
-        NINSS.Rall(i,:)=(SINS{1,1}.R0+my_getdRf(SINS{1,1}.R0,2*NINSS.uf(:,i)*norm(SINS{1,1}.R0),2))';%注意my_getdRf的挠曲角输入为姿态量测，即2倍挠曲角
+        NINSS.qmsall(i,:)=qms_all';
+        NINSS.Rall(i,:)=Rloop_all';
+        NINSS.vnall(i,:)=vn_all';
+        attMat=a2mat(2*NINSS.uf(:,i));
         [rz,rx,ry]=dcm2angle(attMat,'zxy');%转换到传统的坐标
         NINSS.attnewall(:,i)=[rx,ry,-rz];
-        [rz,rx,ry]=dcm2angle(Cmserr_1*attMat,'zxy');%转换到传统的坐标
+        [rz,rx,ry]=dcm2angle(q2mat(NINSS.qmsall(i,:)),'zxy');%转换到传统的坐标
         NINSS.attall(:,i)=[rx,ry,-rz];
+
         
     else
         

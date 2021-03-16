@@ -125,6 +125,8 @@ for i=1:looplen
 
                 Filter{m,n}.X(:,i)=kf{m,n}.Xk;
                 
+                attint{m,n}=q2att(qdelphi(a2qua(attint{m,n}),-kf{m,n}.Xk(1:3)));% 2021 03 15新增 更新初始姿态误差阵
+                
                 qms{m,n} = qdelphi(qms{m,n},-kf{m,n}.Xk(1:3));
                 kf{m,n}.Xk(1:3) = 0;  % ·反馈
                 Uloop{m,n}= Uloop{m,n}- kf{m,n}.Xk(4:6);  kf{m,n}.Xk(4:6) = 0;

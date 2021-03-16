@@ -100,9 +100,9 @@ end
 % 初始时的安装误差角约值
 atterrList=zeros(3,N,M);%zeros(3,N,M);
 for m=1:M
-    atterrList(:,:,m)=[ 1  1  1  1 ;
-                        2  3  2  2 ;
-                        3  3  3  3 ]*d2g;%子惯安装误差角
+    atterrList(:,:,m)=[ 2  1  1  1 ;
+                        3  3  1  3 ;
+                        3  2  3  1 ]*d2g;%子惯安装误差角
 end
 %% 子惯反解算数据
 SINS=my_invRIpackN(MINS,Smove);

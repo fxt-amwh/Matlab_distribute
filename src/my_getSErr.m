@@ -6,7 +6,7 @@ function err=my_getSErr(ex,len,dir)
 % 输出：INSSFR:相对导航结果
 len=floor(len);
 if dir==1
-    err=sum(ex(end-len+1:end,:),dir)/len;
+    err=sum(abs(ex(end-len+1:end,:)),dir)/len;
 elseif dir==2
-    err=sum(ex(:,end-len+1:end),dir)/len;
+    err=sum(abs(ex(:,end-len+1:end)),dir)/len;
 end

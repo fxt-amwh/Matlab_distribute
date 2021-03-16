@@ -91,7 +91,7 @@ SERR.wdb=[200;200;200]*ugpsHz;
 % msplot(211, SINS_Ret_Vu(:,22), (SINS_Ret_Vu(:,1:3)-SINS_Ret_Vu(:,10:12))/arcdeg, 'Att / ( \circ )'); legend('\it\theta', '\it\gamma', '\it\psi')
 % msplot(212, SINS_Ret_Vu(:,22), SINS_Ret_Vu(:,4:6)+SINS_Ret_Vu(:,19:21)-SINS_Ret_Vu(:,13:15), 'Vel / m.s^{-1}'); legend('\itv\rm_E', '\itv\rm_N', '\itv\rm_U')
 %% ËÙ¶ÈÆ¥Åä ÎÞÄÓÇú
-Flag.EnBack=false;
+Flag.EnBack=true;
 close all
 R=[2;0;0];
 SERR.eb=[1;1;1]*dph;
