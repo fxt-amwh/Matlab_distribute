@@ -1,5 +1,5 @@
 %% 一主 + 一子 重要
-%文件名称：test6
+%文件名称：test11
 %作者信息：冯鑫涛
 %功能描述：相对导航滤波 有反馈
 %版本时间：2021/1/30 19:15
@@ -60,7 +60,7 @@ MINS.wim=wim;
 MINS.wim0=wim0;
 MINS.fm=fm;
 fprintf('主惯仿真完成！\n');
-%% 子惯运动数据设计
+%% 子惯1运动数据设计
 fprintf('子惯仿真...'); 
 len=size(wm,1)+1;% len=7200;
 um=10*arcdeg;
@@ -72,7 +72,7 @@ Rf=[-R0(1)*sin(u(2,:)).*sin(u(2,:));zeros(1,len);R0(1)*sin(u(2,:)).*cos(u(2,:))]
 R=R0+Rf;
 att=2*u;
 att_s0=[0;0;0]*arcdeg;%理想时 主子间0时刻前初始相对角度
-%% 子惯反解算数据
+%% 子惯1反解算数据
 % atterr0=[1;2;3]*arcdeg;%注意这里旋转顺序zxy
 atterr0=[0;0;0]*arcdeg;%注意这里旋转顺序zxy
 Cmserr=my_a2mat(atterr0);%注意中间处理旋转顺序yxz
@@ -80,7 +80,30 @@ diffRf0=[0;0;0];%Rf的初始变化率
 U0=diffRf0+cross(wim0,R0);
 SINS1=my_invRI(R,att,atterr0,wim,fm,ts,R0,att_s0,U0);
 fprintf('子惯仿真完成！\n纯子惯相对导航...%5.0f %%',0);  
+%% 子惯2运动数据设计
+fprintf('子惯仿真...'); 
+len=size(wm,1)+1;% len=7200;
+um=20*arcdeg;
+u=[zeros(1,len);um*sin(2*pi*f*(0:ts:((len-1)*ts)));zeros(1,len)];
+R0=[4;0;0];%理想时 主子间0时刻前初始相对位置
+Rf0=[0;0;0];%理想时 子0时刻前偏移
+Rf=[-R0(1)*sin(u(2,:)).*sin(u(2,:));zeros(1,len);R0(1)*sin(u(2,:)).*cos(u(2,:))];
+R2=R0+Rf;
+att2=2*u;
+att_s0=[0;0;0]*arcdeg;%理想时 主子间0时刻前初始相对角度
+%% 子惯2反解算数据
+% atterr0=[1;2;3]*arcdeg;%注意这里旋转顺序zxy
+atterr0=[0;0;0]*arcdeg;%注意这里旋转顺序zxy
+Cmserr=my_a2mat(atterr0);%注意中间处理旋转顺序yxz
+diffRf0=[0;0;0];%Rf的初始变化率
+U0=diffRf0+cross(wim0,R0);
+SINS2=my_invRI(R2,att2,atterr0,wim,fm,ts,R0,att_s0,U0);
+fprintf('子惯仿真完成！\n纯子惯相对导航...%5.0f %%',0);  
 %% 子惯误差设计
+MERR.eb=[1;1;1]*dph;
+MERR.web=[1;1;1]*dpsh;
+MERR.db=[200;200;200]*ug;
+MERR.wdb=[200;200;200]*ugpsHz;
 SERR1.eb = [1;1;1]*dph; SERR1.web = [1;1;1]*dpsh;   %陀螺常值零偏，角度随机游走
 SERR1.db = [200;200;200]*ug; SERR1.wdb = [200;200;200]*ugpsHz;  %加速度计常值偏值，速度随机游走
 % SERR1.eb = 0*[1;1;1]*dph; SERR1.web = 0*[1;1;1]*dpsh;   %陀螺常值零偏，角度随机游走

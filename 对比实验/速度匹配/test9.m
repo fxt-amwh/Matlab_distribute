@@ -1,8 +1,8 @@
 %% Ò»Ö÷ + Ò»×Ó ÖØÒª
 %ÎÄ¼şÃû³Æ£ºtest6
 %×÷ÕßĞÅÏ¢£º·ëöÎÌÎ
-%¹¦ÄÜÃèÊö£ºÏà¶Ôµ¼º½ÂË²¨ ÓĞ·´À¡
-%°æ±¾Ê±¼ä£º2021/1/30 19:15
+%¹¦ÄÜÃèÊö£ºÏà¶Ôµ¼º½ÂË²¨ ËÙ¶ÈÆ¥Åä¶Ô ÓĞ·´À¡
+%°æ±¾Ê±¼ä£º2021/3/15 19:15
 % 1¡¢¸ù¾İÉè¼Æ¹ì¼£ÔË¶¯·´½âËãÖ÷¹ß´«¸ĞÆ÷Êä³ö
 % 2¡¢¸ù¾İÉè¼Æ»úÒíÔË¶¯·´½âËã×Ó¹ß´«¸ĞÆ÷Êı¾İ
 % 3¡¢×Ó¹ßÊı¾İ×¢ÈëÎó²î
@@ -33,25 +33,6 @@ fprintf('¹ì¼£·ÂÕæÖĞ...');
 fprintf('¹ì¼£·ÂÕæÍê³É£¡\nÖ÷¹ß·ÂÕæÖĞ...');
 [wm, vm] = my_av2imu(attm, vn, pos, ts);
 tt = (0:length(attm)-1)'*ts;
-% ¹ì¼£×÷Í¼
-msplot(221, tt, attm/arcdeg, 'Att / ( \circ )'); legend('\it\theta', '\it\gamma', '\it\psi')
-msplot(222, tt, vn, 'Vel / m.s^{-1}'); legend('\itv\rm_E', '\itv\rm_N', '\itv\rm_U')
-msplot(223, tt, deltapos(pos), '\DeltaPos / m');
-      legend('\Delta\itL', '\Delta\it\lambda', '\Delta\ith')
-msplot(224, pos(:,2)/arcdeg, pos(:,1)/arcdeg, '\itL\rm / ( \circ )', '\it\lambda\rm / ( \circ)');
-      hold on, plot(pos(1,2)/arcdeg, pos(1,1)/arcdeg, 'ro');
-%  ¹ßĞÔ´«¸ĞÆ÷ĞÅÏ¢×÷Í¼
-msplot(121, tt(2:end), wm/ts/arcdeg, '\it\omega^b_{ib}\rm / ( \circ.s^{-1} )');
-      legend('\it\omega^b_{ibx}', '\it\omega^b_{iby}', '\it\omega^b_{ibz}');
-msplot(122, tt(2:end), vm/ts, '\itf^b\rm_{sf} / ( m.s^{-2} )');
-      legend('\itf^b\rm_{sf\itx}', '\itf^b\rm_{sf\ity}', '\itf^b\rm_{sf\itz}');
-% ÈıÎ¬¹ì¼£
-figure
-delpos=deltapos(pos);
-plot3(delpos(:,1),delpos(:,2),delpos(:,3));
-% axis([0,-8000,]);
-grid on;
-xlabel('Î³¶È¾àÀë/m'),ylabel('¾­¶È¾àÀë/m'),zlabel('¸ß/m');
 %% Ö÷¹ßĞÅÏ¢
 wim0=my_getII(wm(1,:)',ts);
 wim=[wim0,my_getII(wm',ts)];%wim×¢ÒâÊÇÔÚÖ÷×ø±êÏµÏÂµÄÁ¿²â
@@ -63,7 +44,7 @@ fprintf('Ö÷¹ß·ÂÕæÍê³É£¡\n');
 %% ×Ó¹ßÔË¶¯Êı¾İÉè¼Æ
 fprintf('×Ó¹ß·ÂÕæ...'); 
 len=size(wm,1)+1;% len=7200;
-um=10*arcdeg;
+um=2*arcdeg;
 f=0.01;
 u=[zeros(1,len);um*sin(2*pi*f*(0:ts:((len-1)*ts)));zeros(1,len)];
 R0=[2;0;0];%ÀíÏëÊ± Ö÷×Ó¼ä0Ê±¿ÌÇ°³õÊ¼Ïà¶ÔÎ»ÖÃ
@@ -86,7 +67,7 @@ SERR1.db = [200;200;200]*ug; SERR1.wdb = [200;200;200]*ugpsHz;  %¼ÓËÙ¶È¼Æ³£ÖµÆ«Ö
 % SERR1.eb = 0*[1;1;1]*dph; SERR1.web = 0*[1;1;1]*dpsh;   %ÍÓÂİ³£ÖµÁãÆ«£¬½Ç¶ÈËæ»úÓÎ×ß
 % SERR1.db = 0*[200;200;200]*ug; SERR1.wdb = 0*[200;200;200]*ugpsHz;  %¼ÓËÙ¶È¼Æ³£ÖµÆ«Öµ£¬ËÙ¶ÈËæ»úÓÎ×ß
 %% Ïà¶Ôµ¼º½
-atterr0_1=[1;0;0]*arcdeg;%×¢ÒâÕâÀïĞı×ªË³Ğòzxy ²»×¼È·µÄ³õÊ¼½Ç
+atterr0_1=[10;5;2]*arcdeg;%×¢ÒâÕâÀïĞı×ªË³Ğòzxy ²»×¼È·µÄ³õÊ¼½Ç
 SINSR1=my_SINSgetResult(MINS,SINS1,len/2,SERR1,atterr0_1);
 fprintf('´¿¹ßÏà¶Ôµ¼º½Íê³É£¡\nÂË²¨...%5.0f %%',0);
 %% ÂË²¨
@@ -105,64 +86,71 @@ for i=1:len%ÕæÊµ½Ç¶È
    [rz,rx,ry]=dcm2angle(SINS1.Cms{i},'zxy');
    atttrue(:,i)=[rx,ry,-rz]; 
 end
-%% 
-R=SINS1.R;%ÀíÂÛÎ»ÖÃ
-figure%ÀíÂÛÏà¶ÔÎ»ÖÃÓë´¿½âËãÏà¶ÔÎ»ÖÃ¶Ô±È
-subplot(311)
-T=ts:ts:(len*ts);
-plot(T(2:4:end),R(1,2:4:end),'LineWidth',2)
-hold on;
-plot(T(2:4:end),SINSR1.Rall(1:2:end,1),'--','LineWidth',2)
-legend('ÕæÊµÖµ','¼ÆËãÖµ');
-xlabel('Ê±¼ä/s');ylabel('x/m');
-title('Ö÷×Ó¹ßµ¼Ïà¶ÔÎ»ÖÃR');
-grid on;
-subplot(312)
-plot(T(2:4:end),R(2,2:4:end),'LineWidth',2)
-hold on;
-plot(T(2:4:end),SINSR1.Rall(1:2:end,2),'--','LineWidth',2)
-grid on;
-legend('ÕæÊµÖµ','¼ÆËãÖµ');
-xlabel('Ê±¼ä/s');ylabel('y/m');
-title('Ö÷×Ó¹ßµ¼Ïà¶ÔÎ»ÖÃR');
-subplot(313)
-plot(T(2:4:end),R(3,2:4:end),'LineWidth',2)
-hold on;
-plot(T(2:4:end),SINSR1.Rall(1:2:end,3),'--','LineWidth',2)
-legend('ÕæÊµÖµ','¼ÆËãÖµ');
-xlabel('Ê±¼ä/s');ylabel('z/m');
-title('Ö÷×Ó¹ßµ¼Ïà¶ÔÎ»ÖÃR');
-grid on;
-%%
-figure%ÀíÂÛ½Ç¶ÈÓë´¿Ïà¶Ô½âËã½Ç¶È¶Ô±È
-subplot(311)
-plot(T(2:4:end),(atttrue(1,2:4:end))/arcdeg,'LineWidth',2)
-hold on;
-plot(T(2:4:end),SINSR1.attall(1,1:2:end)/arcdeg,'--','LineWidth',2)
-legend('ÕæÊµÖµ','¼ÆËãÖµ');
-xlabel('Ê±¼ä/s');ylabel('¸©Ñö½Ç/¡ã');
-title('Ö÷×Ó¹ßµ¼Ïà¶Ô×ËÌ¬');
+%% ËÙ¶ÈÆ¥Åä ÎŞÄÓÇú
+MERR.eb=[0;0;0]*dph;
+MERR.web=[0;0;0]*dpsh;
+MERR.db=[0;0;0]*ug;
+MERR.wdb=[0;0;0]*ugpsHz;
+Flag.EnBack=true;
+SINS_Ret_VLF=zeros(floor(len/2),22);kk=1;t=0;
+qnb_vm=a2qua(att0);
+vn_vm=vn0;
+posMINS_vm=pos0;
+qnb_vs=a2qua(att0+atterr0_1);
+vn_vs=vn0;
+posSINS_vs=pos0;
+cl = cos(posSINS_vs(1,1)); Re = 6378137;
+posSINS_vs(2,1)=posSINS_vs(2,1)-R0(1)/(cl*Re);
+Filter.X=zeros(12,len/2);
+Cmserr_1=a2mat(att0+atterr0_1);%×¢ÒâÖĞ¼ä´¦ÀíĞı×ªË³Ğòyxz ²»×¼È·µÄ³õÊ¼½Ç
+qns=m2qua(Cmserr_1);%³õÊ¼×ËÌ¬ ²»×¼È·µÄ³õÊ¼½Ç
+fs0=[0;0;0];
+KFinit.Qk = diag([SERR1.wdb; SERR1.web;])^2*nts;
+KFinit.rk = [0.001;0.001;0.001];  
+KFinit.Rk = diag(KFinit.rk)^2;
+KFinit.P0 = diag([[0.001;0.001;0.001];[0.1;0.1;0.1]*arcdeg;SERR1.db; SERR1.eb])^2;
+eth0 = earth(posMINS_vm, vn_vm);  % µØÇòÏà¹Ø²ÎÊı¼ÆËã
+kfft=my_kfftV12(eth0,q2mat(qns),fs0,nts);
+kf = kfinit(KFinit.Qk, KFinit.Rk, KFinit.P0,kfft.phi,kfft.H);  % kfÂË²¨Æ÷³õÊ¼»¯
+% SERR.eb=[0;0;0]*dph;
+% SERR.web=[0;0;0]*dpsh;
+% SERR.db=[0;0;0]*ug;
+% SERR.wdb=[0;0;0]*ugpsHz;
+for k=1:len/2
+    t=t+nts;
+    [wm1,vm1]=imuadderr(MINS.wim(:,(2*k-1):(2*k))'*ts, ...
+        MINS.fm(:,(2*k-1):(2*k))'*ts, ...
+        MERR.eb, MERR.web, MERR.db, MERR.wdb, ts);
+    [ws1,vs1]=imuadderr(SINS1.wis(:,(2*k-1):(2*k))'*ts, ...
+        SINS1.fs(:,(2*k-1):(2*k))'*ts, ...
+        SERR1.eb, SERR1.web, SERR1.db, SERR1.wdb, ts);
+    [qnb_vm,vn_vm,posMINS_vm,qnb_vs,vn_vs,posSINS_vs,VL,ethm]=...
+        my_Vrelinsupdate...
+        (qnb_vm,vn_vm,posMINS_vm,wm1,vm1,qnb_vs,vn_vs,posSINS_vs,ws1,vs1,R0,ts);
+    
+    fs=sum(SINS1.fs(:,(2*k-1):(2*k)),2)/2;
+    kfft=my_kfftV12(ethm,q2mat(qnb_vs),fs,nts);
+    kf.Phikk_1=kfft.phi;
+    kf.Gammak=kfft.Gammak;
+    
+    ZV=vn_vs-(vn_vm+VL);% ¹¹ÔìÁ¿²â
+    
+    kf = kfupdate(kf,ZV,'B');%¿¨¶ûÂüÂË²¨
 
-grid on;
-subplot(312)
-plot(T(2:4:end),(atttrue(2,2:4:end))/arcdeg,'LineWidth',2)
-hold on;
-plot(T(2:4:end),SINSR1.attall(2,1:2:end)/arcdeg,'--','LineWidth',2)
-legend('ÕæÊµÖµ','¼ÆËãÖµ');
-xlabel('Ê±¼ä/s');ylabel('¹ö×ª½Ç/¡ã');
-title('Ö÷×Ó¹ßµ¼Ïà¶Ô×ËÌ¬');
-
-grid on;
-subplot(313)
-plot(T(2:4:end),(atttrue(3,2:4:end))/arcdeg,'LineWidth',2)
-hold on;
-plot(T(2:4:end),SINSR1.attall(3,1:2:end)/arcdeg,'--','LineWidth',2)
-legend('ÕæÊµÖµ','¼ÆËãÖµ');
-xlabel('Ê±¼ä/s');ylabel('º½Ïò½Ç/¡ã');
-title('Ö÷×Ó¹ßµ¼Ïà¶Ô×ËÌ¬');
-
-grid on;
-%% 
+    if Flag.EnBack
+        qnb_vs = qdelphi(qnb_vs,kf.Xk(4:6));  kf.Xk(4:6) = 0;  % ¡¤·´À¡
+        vn_vs = vn_vs - kf.Xk(1:3);  kf.Xk(1:3) = 0;
+    end
+    
+    Filter.X(:,k)=kf.Xk;
+    Filter.X(4:6,k)=q2att(rv2q(Filter.X(4:6,k)));
+    SINS_Ret_VLF(kk,:)=...
+        [q2att(qnb_vm);vn_vm;posMINS_vm;q2att(qnb_vs);vn_vs;posSINS_vs;VL;t];
+    kk=kk+1;
+    if mod(t,100)<nts,disp(fix(t));end
+end
+Filter.XT=Filter.X';
+%% »æÍ¼
 figure%ÀíÂÛÏà¶ÔÎ»ÖÃÓë´¿½âËãÏà¶ÔÎ»ÖÃ¶Ô±È
 subplot(311)
 T=ts:ts:(len*ts);
@@ -216,7 +204,6 @@ plot(T(2:4:end-1),SINSFR1.attall(3,1:2:end-1)/arcdeg,'--','LineWidth',2)
 legend('ÕæÊµÖµ','¼ÆËãÖµ');
 xlabel('Ê±¼ä/s');ylabel('º½Ïò½Ç/¡ã');
 title('Ö÷×Ó¹ßµ¼Ïà¶Ô×ËÌ¬£¨ÂË²¨£©');
-
 grid on;
 %% 
 figure
@@ -243,42 +230,68 @@ grid on;
 figure
 subplot(311)
 plot(T(2:4:end-1),(SINSFR1.attall(1,1:2:end-1)-atttrue(1,2:4:end-1))/arcdeg,'LineWidth',2)
+hold on;
+plot(T(2:4:end-1),(Filter.XT(1:2:end,4)+atterr0_1(1,1))'/arcdeg,'LineWidth',2)
+legend("Ïà¶Ôµ¼º½","ËÙ¶ÈÆ¥Åä");
 xlabel('Ê±¼ä/s');ylabel('¸©Ñö½Ç/¡ã');title('Ö÷×Ó¹ßµ¼Ïà¶Ô×ËÌ¬Îó²î');grid on;
 subplot(312)
 plot(T(2:4:end-1),(SINSFR1.attall(2,1:2:end-1)-atttrue(2,2:4:end-1))/arcdeg,'LineWidth',2)
+hold on;
+plot(T(2:4:end-1),(Filter.XT(1:2:end,5))'/arcdeg,'LineWidth',2)
+legend("Ïà¶Ôµ¼º½","ËÙ¶ÈÆ¥Åä");
 xlabel('Ê±¼ä/s');ylabel('¹ö×ª½Ç/¡ã');title('Ö÷×Ó¹ßµ¼Ïà¶Ô×ËÌ¬Îó²î');grid on;
+ylim([-1,1]);
 subplot(313)
 plot(T(2:4:end-1),(SINSFR1.attall(3,1:2:end-1)-atttrue(3,2:4:end-1))/arcdeg,'LineWidth',2)
+hold on;
+plot(T(2:4:end-1),(Filter.XT(1:2:end,5))'/arcdeg,'LineWidth',2)
+legend("Ïà¶Ôµ¼º½","ËÙ¶ÈÆ¥Åä");
 xlabel('Ê±¼ä/s');ylabel('º½Ïò½Ç/¡ã');title('Ö÷×Ó¹ßµ¼Ïà¶Ô×ËÌ¬Îó²î');grid on;
-% %% Í³¼ÆÎó²î
-% errlen=1/(f*nts);
-% Rerr=my_getSErr(SINSFR1.Rall(1:end,:)'-R(:,1:2:end),errlen,2)*1000;        %Î»ÖÃÎó²îµ¥Î»mm
-% Atterr=my_getSErr(SINSFR1.attall(:,1:end)-atttrue(:,1:2:end),errlen,2)/arcdeg*60; %×ËÌ¬Îó²îµ¥Î»·Ö
-% fprintf('ÂË²¨Í³¼Æ,Î»ÖÃÎó²î%f %f %f£¨mm£©£¬×ËÌ¬Îó²î%f %f %f£¨·Ö£©\n',...
-%     Rerr(1),Rerr(2),Rerr(3),Atterr(1),Atterr(2),Atterr(3));
-% errlen=1;
-% Rerr=my_getSErr(SINSFR1.Rall(1:end-1,:)'-R(:,1:2:end-2),errlen,2)*1000;        %Î»ÖÃÎó²îµ¥Î»mm
-% Atterr=my_getSErr(SINSFR1.attall(:,1:end-1)-atttrue(:,1:2:end-2),errlen,2)/arcdeg*60; %×ËÌ¬Îó²îµ¥Î»·Ö
-% fprintf('ÂË²¨ÖÕÖµ,Î»ÖÃÎó²î%f %f %f£¨mm£©£¬×ËÌ¬Îó²î%f %f %f£¨·Ö£©\n',...
-%     Rerr(1),Rerr(2),Rerr(3),Atterr(1),Atterr(2),Atterr(3));
-% errlen=1/(f*nts);
-% Rerr=my_getSErr(SINSR1.Rall(1:end,:)'-R(:,1:2:end),errlen,2)*1000;        %Î»ÖÃÎó²îµ¥Î»mm
-% Atterr=my_getSErr(SINSR1.attall(:,1:end)-atttrue(:,1:2:end),errlen,2)/arcdeg*60; %×ËÌ¬Îó²îµ¥Î»·Ö
-% fprintf('´¿¹ßÍ³¼Æ,Î»ÖÃÎó²î%f %f %f£¨mm£©£¬×ËÌ¬Îó²î%f %f %f£¨·Ö£©\n',...
-%     Rerr(1),Rerr(2),Rerr(3),Atterr(1),Atterr(2),Atterr(3));
-% errlen=1;
-% Rerr=my_getSErr(SINSR1.Rall(1:end-1,:)'-R(:,1:2:end-2),errlen,2)*1000;        %Î»ÖÃÎó²îµ¥Î»mm
-% Atterr=my_getSErr(SINSR1.attall(:,1:end-1)-atttrue(:,1:2:end-2),errlen,2)/arcdeg*60; %×ËÌ¬Îó²îµ¥Î»·Ö
-% fprintf('´¿¹ßÖÕÖµ,Î»ÖÃÎó²î%f %f %f£¨mm£©£¬×ËÌ¬Îó²î%f %f %f£¨·Ö£©\n',...
-%     Rerr(1),Rerr(2),Rerr(3),Atterr(1),Atterr(2),Atterr(3));
+ylim([-1,1]);
+%%
+figure
+subplot(311)
+plot(T(2:4:end-1),(SINSFR1.attall(1,1:2:end-1)-atttrue(1,2:4:end-1))/arcdeg,'LineWidth',2)
+hold on;
+plot(T(2:4:end-1),-SINS_Ret_VLF(1:2:end,1)/arcdeg+SINS_Ret_VLF(1:2:end,10)/arcdeg,'LineWidth',2)
+legend("Ïà¶Ôµ¼º½","ËÙ¶ÈÆ¥Åä");
+xlabel('Ê±¼ä/s');ylabel('¸©Ñö½Ç/¡ã');title('Ö÷×Ó¹ßµ¼Ïà¶Ô×ËÌ¬Îó²î');grid on;
+subplot(312)
+plot(T(2:4:end-1),(SINSFR1.attall(2,1:2:end-1)-atttrue(2,2:4:end-1))/arcdeg,'LineWidth',2)
+hold on;
+plot(T(2:4:end-1),SINS_Ret_VLF(1:2:end,2)/arcdeg-SINS_Ret_VLF(1:2:end,11)/arcdeg,'LineWidth',2)
+legend("Ïà¶Ôµ¼º½","ËÙ¶ÈÆ¥Åä");
+xlabel('Ê±¼ä/s');ylabel('¹ö×ª½Ç/¡ã');title('Ö÷×Ó¹ßµ¼Ïà¶Ô×ËÌ¬Îó²î');grid on;
+ylim([-1,1]);
+subplot(313)
+plot(T(2:4:end-1),(SINSFR1.attall(3,1:2:end-1)-atttrue(3,2:4:end-1))/arcdeg,'LineWidth',2)
+hold on;
+plot(T(2:4:end-1),SINS_Ret_VLF(1:2:end,3)/arcdeg-SINS_Ret_VLF(1:2:end,12)/arcdeg,'LineWidth',2)
+legend("Ïà¶Ôµ¼º½","ËÙ¶ÈÆ¥Åä");
+xlabel('Ê±¼ä/s');ylabel('º½Ïò½Ç/¡ã');title('Ö÷×Ó¹ßµ¼Ïà¶Ô×ËÌ¬Îó²î');grid on;
+ylim([-1,1]);
 %% Í³¼ÆMSE
 beg_T=200;
 end_T=500;
 beg_index=beg_T/nts;
 end_index=end_T/nts;
 %diag(resultR(:,sam.begin:sam.end)*resultR(:,sam.begin:sam.end)')/length(resultR(:,sam.begin:sam.end))/simLen^2
-errall=SINSFR1.attall(:,1:end)-atttrue(:,1:2:end);
-err=errall(:,beg_index:end_index);
-MSE = 1000*sqrt(diag(err*err'/length(err)));
-fprintf("MSE:(mrad)");
-disp(MSE');
+errall1=SINSFR1.attall(:,1:end)-atttrue(:,1:2:end);
+err1=errall1(:,beg_index:end_index);
+MSE1 = 1000*sqrt(diag(err1*err1'/length(err1)));
+errall2=SINS_Ret_VLF(1:end,1:3)-SINS_Ret_VLF(1:end,10:12)+atttrue(:,1:2:end)';
+errall2=errall2';
+if  Flag.EnBack
+    err2=errall2(:,beg_index:end_index);
+    err2(3,err2(3,:)<-pi)=0.1*pi/180;err2(3,err2(3,:)>pi)=0.1*pi/180;
+    MSE2 = 1000*sqrt(diag(err2*err2'/length(err2)));
+else    
+    err2=Filter.XT(beg_index:end_index,4:6)+atterr0_1';
+    MSE2 = 1000*sqrt(diag(err2'*err2/length(err2)));
+end
+MSE1=[MSE1;sqrt(MSE1'*MSE1)];
+MSE2=[MSE2;sqrt(MSE2'*MSE2)];
+fprintf("MSEÏà¶Ôµ¼º½:(mrad)");
+disp(MSE1');
+fprintf("MSEËÙ¶ÈÆ¥Åä:(mrad)");
+disp(MSE2');
