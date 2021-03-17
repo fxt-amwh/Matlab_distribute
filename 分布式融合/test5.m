@@ -54,8 +54,8 @@ MINS.wim=wim;MINS.wim0=wim0;MINS.fm=fm;MINS.ts=ts;
 fprintf('主惯仿真完成！\n');
 %% 最远子惯信息
 simf=0.01;
-uf_lw_m=2*d2g;
-R_lw=[2;0;0];
+uf_lw_m=5*d2g;
+R_lw=[3;0;0];
 %% 全局设计
 flag.EnReli=true;%是否纯进行相对导航不滤波
 flag.EnFusion=false;%是否进行融合
@@ -71,17 +71,17 @@ Sinf.len=size(MINS.wim,2);% len=7200;
 % Sinf.Rlist=[2 2 2 2 2;
 %             0 0 0 0 0;
 %             0 0 0 0 0];
-% Sinf.Rlist=[linspace(1,R_lw(1,1),4);zeros(2,4)];
-% Sinf.ulist=uf_lw_m*Sinf.Rlist(1,:)/R_lw(1,1);%子惯处挠曲角
-Sinf.Rlist=[R_lw(1,1)*ones(1,4);zeros(2,4)];
-Sinf.ulist=uf_lw_m*ones(1,4);%子惯处挠曲角
+Sinf.Rlist=[linspace(1,R_lw(1,1),4);zeros(2,4)];
+Sinf.ulist=uf_lw_m*Sinf.Rlist(1,:)/R_lw(1,1);%子惯处挠曲角
+% Sinf.Rlist=[R_lw(1,1)*ones(1,4);zeros(2,4)];
+% Sinf.ulist=uf_lw_m*ones(1,4);%子惯处挠曲角
 Sinf.flist=simf*ones(1,size(Sinf.Rlist,2));%挠曲频率
 Sinf.aerrlist=[ 1  1  1  1 ;
                 2  2  2  2 ;
                 3  3  3  3 ]*d2g;%子惯安装误差角
 Sinf.wim0=MINS.wim0;SinfCell{1,1}=Sinf;
 % Sinf.Rlist(2,:)=0.5;%第二排y轴位置
-SinfCell{1,2}=Sinf;
+% SinfCell{1,2}=Sinf;
 Smove=my_nSmovePackN(SinfCell);
 [M,N]=size(Smove);%根据设计推断阵面排列
 % 子惯误差设计
@@ -89,10 +89,11 @@ SERRList.eb=zeros(3,N,M);%zeros(3,N,M)
 SERRList.web=zeros(3,N,M);%zeros(3,N,M)
 SERRList.db=zeros(3,N,M);%zeros(3,N,M)
 SERRList.wdb=zeros(3,N,M);%zeros(3,N,M)
+%%
 for m=1:M
     for n=1:N
-        SERRList.eb(:,n,m)=[1;1;1]*dph;%陀螺常值零偏 一列对应一个
-        SERRList.web(:,n,m)=[1;1;1]*dpsh;%角度随机游走 一列对应一个
+        SERRList.eb(:,n,m)=[1;1;1]/2*dph;%陀螺常值零偏 一列对应一个
+        SERRList.web(:,n,m)=[1;1;1]/2*dpsh;%角度随机游走 一列对应一个
         SERRList.db(:,n,m)=[200;200;200]*ug;%加速度计常值偏值 一列对应一个
         SERRList.wdb(:,n,m)=[200;200;200]*ugpsHz;%速度随机游走 一列对应一个
     end
@@ -100,9 +101,9 @@ end
 % 初始时的安装误差角约值
 atterrList=zeros(3,N,M);%zeros(3,N,M);
 for m=1:M
-    atterrList(:,:,m)=[ 2  1  1  1 ;
-                        3  3  1  3 ;
-                        3  2  3  1 ]*d2g;%子惯安装误差角
+    atterrList(:,:,m)=[ 3  1  1  3 ;
+                        2  3  2  2 ;
+                        3  3  3  3 ]*d2g;%子惯安装误差角
 end
 %% 子惯反解算数据
 SINS=my_invRIpackN(MINS,Smove);
@@ -142,17 +143,17 @@ else
         % [SINSFR,Filter]=my_getFResultN(MINS,SINS,KFinit,atterr,SinfCell{1,1}.len/2,SINSR,1);%单个子惯分离版
         flag.select=1;
         if flag.EnFusion
-            [SINSFR,Filter,NSINSFR]=my_getFResultLoopN(MINS,SINS,KFinit,atterr,SinfCell{1,1}.len/2,SINSR,flag);%并行集中版
+            [SINSFR,Filter,NSINSFR]=my_getFResultLoopN_new(MINS,SINS,KFinit,atterr,SinfCell{1,1}.len/2,SINSR,flag);%并行集中版
         else
-            [SINSFR,Filter,~]=my_getFResultLoopN(MINS,SINS,KFinit,atterr,SinfCell{1,1}.len/2,SINSR,flag);%并行集中版
+            [SINSFR,Filter,~]=my_getFResultLoopN_new(MINS,SINS,KFinit,atterr,SinfCell{1,1}.len/2,SINSR,flag);%并行集中版
         end
     else
         flag.select=2;
         % [SINSFR,Filter]=my_getFResultN(MINS,SINS,KFinit,atterr,SinfCell{1,1}.len/2,SERR,2);%单个子惯分离版
         if flag.EnFusion
-            [SINSFR,Filter,NSINSFR]=my_getFResultLoopN(MINS,SINS,KFinit,atterr,SinfCell{1,1}.len/2,SERR,flag);%并行集中版
+            [SINSFR,Filter,NSINSFR]=my_getFResultLoopN_new(MINS,SINS,KFinit,atterr,SinfCell{1,1}.len/2,SERR,flag);%并行集中版
         else
-            [SINSFR,Filter,~]=my_getFResultLoopN(MINS,SINS,KFinit,atterr,SinfCell{1,1}.len/2,SERR,flag);%并行集中版
+            [SINSFR,Filter,~]=my_getFResultLoopN_new(MINS,SINS,KFinit,atterr,SinfCell{1,1}.len/2,SERR,flag);%并行集中版
         end
     end
 end
@@ -171,41 +172,42 @@ flag.figureFlag=6;myfigure;
 if flag.EnFusion
     % 绘制子惯1滤波位置误差
     flag.figureFlag=7;myfigure;
-    % 绘制子惯1滤波姿态误差
-    flag.figureFlag=8;myfigure;
+%     % 绘制子惯1滤波姿态误差
+%     flag.figureFlag=8;myfigure;
 end
 %% 统计误差
 for m=1:M
     for n=1:N
         disp(nameList(m,n));
-        errlen=1/(Smove{m,n}.f*nts);
-        Rerr=my_getSErr(SINSFR{m,n}.Rall(1:end,:)'-SINS{m,n}.R(:,1:2:end),errlen,2)*1000;        %位置误差单位mm
-        Atterr=my_getSErr(SINSFR{m,n}.attall(:,1:end)-SINS{m,n}.atttrue(:,1:2:end),errlen,2)/arcdeg*60; %姿态误差单位分
-        fprintf('滤波统计,位置误差%f %f %f（mm），姿态误差%f %f %f（分）\n',...
-            Rerr(1),Rerr(2),Rerr(3),Atterr(1),Atterr(2),Atterr(3));
+%         errlen=1/(Smove{m,n}.f*nts);
+%         Rerr=my_getSErr(SINSFR{m,n}.Rall(1:end,:)'-SINS{m,n}.R(:,1:2:end),errlen,2)*1000;        %位置误差单位mm
+%         Atterr=my_getSErr(SINSFR{m,n}.attall(:,1:end)-SINS{m,n}.atttrue(:,1:2:end),errlen,2)/arcdeg*60; %姿态误差单位分
+%         fprintf('滤波统计,位置误差%f %f %f（mm），姿态误差%f %f %f（分）\n',...
+%             Rerr(1),Rerr(2),Rerr(3),Atterr(1),Atterr(2),Atterr(3));
         errlen=1;
         beg=ceil(200/nts);
         End=ceil(500/nts);
-        Rerr=my_getSErr(SINSFR{m,n}.Rall(1:end-1,:)'-SINS{m,n}.R(:,1:2:end-2),errlen,2)*1000;        %位置误差单位mm
+        Rerr=my_getSErrBE(SINSFR{m,n}.Rall(1:end-1,:)'-SINS{m,n}.R(:,1:2:end-2),beg,End,2)*1000;        %位置误差单位mm
         Rserr=my_getVErr(SINSFR{m,n}.Rall(1:end-1,:)'-SINS{m,n}.R(:,1:2:end-2),beg,End,2)*1000;        %位置误差单位mm
-        Atterr=my_getSErr(SINSFR{m,n}.attall(:,1:end-1)-SINS{m,n}.atttrue(:,1:2:end-2),errlen,2)/arcdeg*60; %姿态误差单位分
+        Atterr=my_getSErrBE(SINSFR{m,n}.attall(:,1:end-1)-SINS{m,n}.atttrue(:,1:2:end-2),beg,End,2)/arcdeg*60; %姿态误差单位分
         Attserr=my_getVErr(SINSFR{m,n}.attall(:,1:end-1)-SINS{m,n}.atttrue(:,1:2:end-2),beg,End,2)/arcdeg*60;
         fprintf('滤波终值,位置误差%f %f %f（mm）,位置误差方差%f %f %f(mm)，姿态误差%f %f %f（分）,姿态均方差%f %f %f(分)\n',...
             Rerr(1),Rerr(2),Rerr(3),Rserr(1),Rserr(2),Rserr(3),Atterr(1),Atterr(2),Atterr(3),Attserr(1),Attserr(2),Attserr(3));
-        if flag.EnReli
-            errlen=1/(Smove{m,n}.f*nts);
-            Rerr=my_getSErr(SINSR{m,n}.Rall(1:end,:)'-SINS{m,n}.R(:,1:2:end),errlen,2)*1000;        %位置误差单位mm
-            Atterr=my_getSErr(SINSR{m,n}.attall(:,1:end)-SINS{m,n}.atttrue(:,1:2:end),errlen,2)/arcdeg*60; %姿态误差单位分
-            fprintf('纯惯统计,位置误差%f %f %f（mm），姿态误差%f %f %f（分）\n',...
-                Rerr(1),Rerr(2),Rerr(3),Atterr(1),Atterr(2),Atterr(3));
-            errlen=1;
-            Rerr=my_getSErr(SINSR{m,n}.Rall(1:end-1,:)'-SINS{m,n}.R(:,1:2:end-2),errlen,2)*1000;        %位置误差单位mm
-            Atterr=my_getSErr(SINSR{m,n}.attall(:,1:end-1)-SINS{m,n}.atttrue(:,1:2:end-2),errlen,2)/arcdeg*60; %姿态误差单位分
-            fprintf('纯惯终值,位置误差%f %f %f（mm），姿态误差%f %f %f（分）\n',...
-                Rerr(1),Rerr(2),Rerr(3),Atterr(1),Atterr(2),Atterr(3));
-        end
+%         if flag.EnReli
+%             errlen=1/(Smove{m,n}.f*nts);
+%             Rerr=my_getSErr(SINSR{m,n}.Rall(1:end,:)'-SINS{m,n}.R(:,1:2:end),errlen,2)*1000;        %位置误差单位mm
+%             Atterr=my_getSErr(SINSR{m,n}.attall(:,1:end)-SINS{m,n}.atttrue(:,1:2:end),errlen,2)/arcdeg*60; %姿态误差单位分
+%             fprintf('纯惯统计,位置误差%f %f %f（mm），姿态误差%f %f %f（分）\n',...
+%                 Rerr(1),Rerr(2),Rerr(3),Atterr(1),Atterr(2),Atterr(3));
+%             errlen=1;
+%             Rerr=my_getSErr(SINSR{m,n}.Rall(1:end-1,:)'-SINS{m,n}.R(:,1:2:end-2),errlen,2)*1000;        %位置误差单位mm
+%             Atterr=my_getSErr(SINSR{m,n}.attall(:,1:end-1)-SINS{m,n}.atttrue(:,1:2:end-2),errlen,2)/arcdeg*60; %姿态误差单位分
+%             fprintf('纯惯终值,位置误差%f %f %f（mm），姿态误差%f %f %f（分）\n',...
+%                 Rerr(1),Rerr(2),Rerr(3),Atterr(1),Atterr(2),Atterr(3));
+%         end
     end
 end
+%%
 if flag.EnFusion
     disp('融合结果');
     errlen=1/(Smove{1,1}.f*nts);
@@ -216,10 +218,52 @@ if flag.EnFusion
     errlen=1;
     beg=ceil(200/nts);
     End=ceil(500/nts);
-    Rerr=my_getSErr(NSINSFR.Rall(1:end-1,:)'-SINS{1,1}.R(:,1:2:end-2),errlen,2)*1000;        %位置误差单位mm
+    Rerr=my_getSErrBE(NSINSFR.Rall(1:end-1,:)'-SINS{1,1}.R(:,1:2:end-2),beg,End,2)*1000;        %位置误差单位mm
     Rserr=my_getVErr(NSINSFR.Rall(1:end-1,:)'-SINS{1,1}.R(:,1:2:end-2),beg,End,2)*1000;        %位置误差单位mm
-    Atterr=my_getSErr(NSINSFR.attnewall(:,1:end-1)-SINS{1,1}.attuftrue(:,1:2:end-2),errlen,2)/arcdeg*60; %姿态误差单位分
+    Atterr=my_getSErrBE(NSINSFR.attnewall(:,1:end-1)-SINS{1,1}.attuftrue(:,1:2:end-2),beg,End,2)/arcdeg*60; %姿态误差单位分
     Attserr=my_getVErr(NSINSFR.attnewall(:,1:end-1)-SINS{1,1}.attuftrue(:,1:2:end-2),beg,End,2)/arcdeg*60;
     fprintf('滤波终值,位置误差%f %f %f（mm）,位置误差方差%f %f %f(mm)，姿态误差%f %f %f（分）,姿态均方差%f %f %f(分)\n',...
         Rerr(1),Rerr(2),Rerr(3),Rserr(1),Rserr(2),Rserr(3),Atterr(1),Atterr(2),Atterr(3),Attserr(1),Attserr(2),Attserr(3));   
 end
+%% 绘图
+atttrueFR=NSINSFR.attnewall(:,1:end-1);
+atttrue=SINS{1,1}.attuftrue(:,1:2:end-2);
+T=ts:ts:(SinfCell{1,1}.len*ts);
+figure
+subplot(311)
+plot(T(2:2:end-1),atttrueFR(1,:)-atttrue(1,:),'LineWidth',2)
+xlabel('时间/s');ylabel('俯仰角/°');title('主子惯导相对姿态误差（融合）');grid on;ylim([-0.01,0.01]);
+subplot(312)
+plot(T(2:2:end-1),atttrueFR(2,:)-atttrue(2,:),'LineWidth',2)
+xlabel('时间/s');ylabel('滚转角/°');title('主子惯导相对姿态误差（融合）');grid on;ylim([-0.01,0.01]);
+subplot(313)
+plot(T(2:2:end-1),atttrueFR(3,:)-atttrue(3,:),'LineWidth',2)
+xlabel('时间/s');ylabel('航向角/°');title('主子惯导相对姿态误差（融合）');grid on;ylim([-0.01,0.01]);
+
+figure%理论角度与纯相对解算角度对比
+subplot(311)
+plot(T(2:2:end-1),atttrue(1,:),'LineWidth',2)
+hold on;
+plot(T(2:2:end-1),atttrueFR(1,:),'--','LineWidth',2)
+legend('真实值','计算值');
+xlabel('时间/s');ylabel('俯仰角/°');
+title('主子惯导相对姿态（融合）');
+grid on
+
+subplot(312)
+plot(T(2:2:end-1),atttrue(2,:),'LineWidth',2)
+hold on;
+plot(T(2:2:end-1),atttrueFR(2,:),'--','LineWidth',2)
+legend('真实值','计算值');
+xlabel('时间/s');ylabel('滚转角/°');
+title('主子惯导相对姿态（融合）');
+grid on;
+
+subplot(313)
+plot(T(2:2:end-1),atttrue(3,:),'LineWidth',2)
+hold on;
+plot(T(2:2:end-1),atttrueFR(3,:),'--','LineWidth',2)
+legend('真实值','计算值');
+xlabel('时间/s');ylabel('航向角/°');
+title('主子惯导相对姿态（融合）');
+grid on
