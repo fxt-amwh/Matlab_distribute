@@ -69,7 +69,8 @@ for i=1:looplen
     kf = kfupdate(kf,dR,'B');%卡尔曼滤波
     
     Filter.X(:,i)=kf.Xk;
-    attint=q2att(qdelphi(a2qua(attint),-kf.Xk(1:3)));% 2021 03 15新增 更新初始姿态误差阵
+%     attint=q2att(qdelphi(a2qua(attint),-kf.Xk(1:3)));% 2021 03 15新增 更新初始姿态误差阵
+
 %     [rz,rx,ry]=dcm2angle(q2mat(rv2q(kf.Xk(1:3))),'zxy');
 %     Filter.atterr=[rx;ry;-rz];
     
